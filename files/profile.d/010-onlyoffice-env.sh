@@ -4,9 +4,9 @@ export OO_DS_RABBITMQ_URL="${OO_DS_RABBITMQ_URL:-""}"
 
 # Detect if TLS is used (rediss://)
 if [[ "$SCALINGO_REDIS_URL" == rediss://* ]]; then
-  REDIS_TLS=true
+  REDIS_TLS="{}"
 else
-  REDIS_TLS=false
+  REDIS_TLS=""
 fi
 
 # Remove the protocol prefix (redis:// or rediss://)
