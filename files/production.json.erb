@@ -115,7 +115,14 @@
       },
       "redis": {
         "host": "<%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_HOST'] %>",
-        "port": <%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_PORT'] %>
+        "port": <%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_PORT'] %>,
+        "options": {
+          "username": "<%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_USERNAME'] %>",
+          "password": "<%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_PASSWORD'] %>",
+          "tls": "<%= ENV['OO_DS_SERVICES_COAUTHORING_REDIS_TLS'] %>",
+          "database": 0,
+          "connectTimeout": 10000
+        }
       },
       "utils": {
         "utils_common_fontdir": "/app/fonts"

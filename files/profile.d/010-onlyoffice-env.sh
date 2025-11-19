@@ -2,19 +2,43 @@
 
 export OO_DS_RABBITMQ_URL="${OO_DS_RABBITMQ_URL:-""}"
 
-## Parse databases URL:
+# Detect if TLS is used (rediss://)
+if [[ "$SCALINGO_REDIS_URL" == rediss://* ]]; then
+  REDIS_TLS=true
+else
+  REDIS_TLS=false
+fi
 
-REDIS_HOST="$( echo "${SCALINGO_REDIS_URL}" \
-	| cut -d "@" -f2 | cut -d ":" -f1 )"
+# Remove the protocol prefix (redis:// or rediss://)
+REDIS_URL_CLEAN="${SCALINGO_REDIS_URL#redis://}"
+REDIS_URL_CLEAN="${REDIS_URL_CLEAN#rediss://}"
 
-REDIS_PORT="$( echo "${SCALINGO_REDIS_URL}" \
-	| cut -d ":" -f4 | cut -d "/" -f1 )"
+# Split credentials (user:password) and host:port
+USER_PASS="${REDIS_URL_CLEAN%@*}"    # part before the @
+HOST_PORT="${REDIS_URL_CLEAN#*@}"    # part after the @
+
+# Extract username and password
+REDIS_USERNAME="${USER_PASS%%:*}"    # before the first :
+REDIS_PASSWORD="${USER_PASS#*:}"     # after the first :
+
+# If username is empty, set it explicitly to empty
+[ "$REDIS_USERNAME" = "$REDIS_PASSWORD" ] && REDIS_USERNAME=""
+
+# Extract host and port
+REDIS_HOST="${HOST_PORT%%:*}"        # before the :
+REDIS_PORT="${HOST_PORT#*:}"         # after the :
 
 OO_DS_SERVICES_COAUTHORING_REDIS_HOST="${OO_DS_SERVICES_COAUTHORING_REDIS_HOST:-"${REDIS_HOST:-""}"}"
 OO_DS_SERVICES_COAUTHORING_REDIS_PORT="${OO_DS_SERVICES_COAUTHORING_REDIS_PORT:-"${REDIS_PORT:-""}"}"
+OO_DS_SERVICES_COAUTHORING_REDIS_USERNAME="${OO_DS_SERVICES_COAUTHORING_REDIS_USERNAME:-"${REDIS_USERNAME:-""}"}"
+OO_DS_SERVICES_COAUTHORING_REDIS_PASSWORD="${OO_DS_SERVICES_COAUTHORING_REDIS_PASSWORD:-"${REDIS_PASSWORD:-""}"}"
+OO_DS_SERVICES_COAUTHORING_REDIS_TLS="${REDIS_TLS}"
 
 export OO_DS_SERVICES_COAUTHORING_REDIS_HOST
 export OO_DS_SERVICES_COAUTHORING_REDIS_PORT
+export OO_DS_SERVICES_COAUTHORING_REDIS_USERNAME
+export OO_DS_SERVICES_COAUTHORING_REDIS_PASSWORD
+export OO_DS_SERVICES_COAUTHORING_REDIS_TLS
 
 
 OO_DS_SERVICES_COAUTHORING_SQL_TYPE="postgresql"
