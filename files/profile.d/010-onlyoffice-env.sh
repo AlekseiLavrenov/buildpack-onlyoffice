@@ -4,7 +4,7 @@ export OO_DS_RABBITMQ_URL="${OO_DS_RABBITMQ_URL:-""}"
 
 # Detect if TLS is used (rediss://)
 if [[ "$SCALINGO_REDIS_URL" == rediss://* ]]; then
-  REDIS_TLS="{}"
+  REDIS_TLS="{"rejectUnauthorized": false}"
 else
   REDIS_TLS=""
 fi
