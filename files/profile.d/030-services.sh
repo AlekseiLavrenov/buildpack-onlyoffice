@@ -1,33 +1,27 @@
 #!/usr/bin/env bash
 
-start_docservice() {
-	echo "Starting OnlyOffice DocService"
-	/app/server/DocService/docservice &
+start_service() {
+    local name=$1
+    local cmd=$2
+
+    echo "Starting $name"
+    $cmd &
 }
 
-ensure_docservice() {
-	while true; do
-		sleep 30s
-		if ! pgrep -f '/app/server/DocService/docservice' >/dev/null; then
-			echo "DocService does not seem to be running. Respawning."
-			start_docservice
-		fi
-	done &
-}
+ensure_service() {
+    local name=$1
+    local cmd=$2
+    local pattern=$3   # optionnel, pour pgrep
 
-start_fileconverter() {
-	echo "Starting OnlyOffice FileConverter"
-	/app/server/FileConverter/converter &
-}
+    pattern=${pattern:-$cmd}
 
-ensure_fileconverter() {
-	while true; do
-		sleep 30s
-		if ! pgrep -f '/app/server/FileConverter/converter' >/dev/null; then
-			echo "FileConverter does not seem to be running. Respawning."
-			start_fileconverter
-		fi
-	done &
+    while true; do
+        sleep 30
+        if ! pgrep -f "$pattern" >/dev/null; then
+            echo "$name does not seem to be running. Respawning."
+            start_service "$name" "$cmd"
+        fi
+    done &
 }
 
 # Only start OnlyOffice services if conditions are OK
@@ -37,15 +31,15 @@ if [ "${_OO_START}" -eq 0 ]; then
     case "${ONLYOFFICE_MODE}" in
         docservice)
             echo "Starting ONLYOFFICE Document Service..."
-            ensure_docservice
+            ensure_service "OnlyOffice DocService" "/app/server/DocService/docservice"
             ;;
         fileconverter)
             echo "Starting ONLYOFFICE File Converter..."
-            ensure_fileconverter
+            ensure_service "OnlyOffice FileConverter" "/app/server/FileConverter/converter"
             ;;
         proxy)
             echo "Starting ONLYOFFICE Proxy..."
-            ensure_proxy
+            ensure_service "OnlyOffice Proxy" "/app/server/Proxy/proxy"
             ;;
         *)
             echo "[WARNING] Unknown or undefined ONLYOFFICE_MODE: '${ONLYOFFICE_MODE}'"
