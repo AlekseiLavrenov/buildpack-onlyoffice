@@ -26,7 +26,7 @@ ensure_service() {
 
 # Only start OnlyOffice services if conditions are OK
 # `_OO_START` is computed in 020-onlyoffice.sh
-
+_OO_START=1
 if [ "${_OO_START}" -eq 0 ]; then
     case "${ONLYOFFICE_MODE}" in
         docservice)
